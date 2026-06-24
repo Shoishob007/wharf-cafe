@@ -3,9 +3,9 @@
 :root {
   --background: #faf8f5;
   --foreground: #1f1f1f;
-  --primary: #6b7c56;
+  --primary: #d95d39;
   --primary-foreground: #ffffff;
-  --accent: #c17c53;
+  --accent: #2a6b6b;
   --accent-foreground: #ffffff;
   --muted: #f2efe9;
   --muted-foreground: #5c5c5c;
@@ -18,9 +18,9 @@
 [data-theme="dark"] {
   --background: #1a1a1a;
   --foreground: #f3f3f3;
-  --primary: #8a9b75;
+  --primary: #ff7a59;
   --primary-foreground: #1a1a1a;
-  --accent: #d9966e;
+  --accent: #4ea8a8;
   --accent-foreground: #1a1a1a;
   --muted: #27272a;
   --muted-foreground: #a1a1aa;
@@ -33,9 +33,9 @@
   :root:not([data-theme]) {
     --background: #1a1a1a;
     --foreground: #f3f3f3;
-    --primary: #8a9b75;
+    --primary: #ff7a59;
     --primary-foreground: #1a1a1a;
-    --accent: #d9966e;
+    --accent: #4ea8a8;
     --accent-foreground: #1a1a1a;
     --muted: #27272a;
     --muted-foreground: #a1a1aa;
@@ -60,8 +60,8 @@
   --radius-sm: calc(var(--radius) - 0.25rem);
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 0.25rem);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-lora);
 }
 
 html {
@@ -74,4 +74,43 @@ body {
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-serif {
+  font-family: var(--font-lora), ui-serif, Georgia, serif;
+}
+
+.shape-arc {
+  clip-path: ellipse(95% 100% at 50% 0%);
+}
+
+.shape-diagonal {
+  clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+}
+
+.shape-leaf {
+  border-radius: 2rem 0 2rem 0;
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Coffee, Waves, Sun, UtensilsCrossed } from "lucide-react";
 import Button from "../components/Button";
+import ShapedImage from "../components/ShapedImage";
 
 const highlights = [
   { icon: Coffee, label: "Allpress Coffee" },
@@ -16,18 +17,12 @@ export default function About() {
     <section id="about" className="bg-background py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7 }}
-            className="overflow-hidden rounded-2xl"
-          >
-            <div
-              className="aspect-[4/3] w-full bg-cover bg-center"
-              style={{ backgroundImage: "url('/cafe-menu/about.jpg')" }}
-            />
-          </motion.div>
+          <ShapedImage
+            src="/cafe-menu/about.jpg"
+            alt="Maraetai Wharf Café"
+            shape="leaf"
+            className="aspect-[4/3] w-full"
+          />
 
           <motion.div
             initial={{ opacity: 0, x: 40 }}
@@ -53,7 +48,7 @@ export default function About() {
               <strong>Open:</strong> 7am daily
             </p>
 
-            <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div className="mb-8 flex flex-wrap gap-4">
               {highlights.map((item, index) => (
                 <motion.div
                   key={item.label}
@@ -61,12 +56,10 @@ export default function About() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className="flex flex-col items-center rounded-xl bg-card p-4 text-center shadow-sm"
+                  className="flex items-center gap-2 text-sm font-medium text-foreground"
                 >
-                  <item.icon className="mb-2 h-6 w-6 text-primary" />
-                  <span className="text-sm font-medium text-card-foreground">
-                    {item.label}
-                  </span>
+                  <item.icon className="h-5 w-5 text-primary" />
+                  <span>{item.label}</span>
                 </motion.div>
               ))}
             </div>

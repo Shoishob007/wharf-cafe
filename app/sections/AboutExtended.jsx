@@ -112,10 +112,10 @@ export default function AboutExtended() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
-              className="rounded-xl bg-card p-6 shadow-sm"
+              className="border-l-2 border-primary pl-5"
             >
-              <item.icon className="mb-4 h-8 w-8 text-primary" />
-              <h4 className="mb-2 font-semibold text-card-foreground">
+              <item.icon className="mb-3 h-7 w-7 text-primary" />
+              <h4 className="mb-1 font-semibold text-foreground">
                 {item.title}
               </h4>
               <p className="text-sm text-muted-foreground">

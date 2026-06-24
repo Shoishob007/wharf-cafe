@@ -13,10 +13,26 @@ const favourites = [
 ];
 
 const steps = [
-  { icon: Phone, title: "Phone ahead", description: "Call 09 536 5002 to order." },
-  { icon: Clock, title: "Pick a time", description: "Let us know when you will arrive." },
-  { icon: ShoppingBag, title: "Grab & go", description: "Collect from the takeaway window." },
-  { icon: CreditCard, title: "Pay on pickup", description: "Card or cash accepted." },
+  {
+    icon: Phone,
+    title: "Phone ahead",
+    description: "Call 09 536 5002 to order.",
+  },
+  {
+    icon: Clock,
+    title: "Pick a time",
+    description: "Let us know when you will arrive.",
+  },
+  {
+    icon: ShoppingBag,
+    title: "Grab & go",
+    description: "Collect from the takeaway window.",
+  },
+  {
+    icon: CreditCard,
+    title: "Pay on pickup",
+    description: "Card or cash accepted.",
+  },
 ];
 
 export default function TakeawayExtended() {
@@ -37,7 +53,7 @@ export default function TakeawayExtended() {
               A quick selection of what locals grab on the way to the beach or
               the boat. Ask staff about today&apos;s cabinet options too.
             </p>
-            <div className="divide-y divide-border rounded-2xl bg-card shadow-sm">
+            <div className="divide-y divide-border">
               {favourites.map((item, index) => (
                 <motion.div
                   key={item.name}
@@ -45,13 +61,15 @@ export default function TakeawayExtended() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
-                  className="flex items-center justify-between p-4"
+                  className="flex items-center justify-between py-3"
                 >
                   <div>
-                    <p className="font-medium text-card-foreground">{item.name}</p>
+                    <p className="font-medium text-foreground">{item.name}</p>
                     <p className="text-xs text-muted-foreground">{item.note}</p>
                   </div>
-                  <span className="font-semibold text-primary">{item.price}</span>
+                  <span className="font-semibold text-primary">
+                    {item.price}
+                  </span>
                 </motion.div>
               ))}
             </div>
@@ -77,7 +95,7 @@ export default function TakeawayExtended() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className="flex items-start gap-4 rounded-xl bg-card p-5 shadow-sm"
+                  className="flex items-start gap-4 border-b border-border py-4 last:border-b-0"
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
                     <step.icon className="h-5 w-5 text-primary" />

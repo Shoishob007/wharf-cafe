@@ -1,41 +1,41 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MapPin, Car, Dog, CreditCard, Wifi, Baby } from "lucide-react";
+import Accordion from "../components/Accordion";
 
 const faqs = [
   {
-    icon: Car,
+    id: "parking",
     question: "Is there parking?",
     answer:
       "Yes, there is street parking nearby and space around the wharf area for cars and boats on trailers.",
   },
   {
-    icon: Dog,
+    id: "dogs",
     question: "Are dogs allowed?",
     answer:
       "Dogs are welcome in our outdoor seating area. Please keep them on a lead and bring water on hot days.",
   },
   {
-    icon: CreditCard,
+    id: "payment",
     question: "Do you accept card payments?",
     answer:
       "Yes, we accept all major cards and contactless payments. We are cashless for dine-in and takeaway.",
   },
   {
-    icon: Wifi,
+    id: "wifi",
     question: "Is there Wi-Fi?",
     answer:
       "We have free Wi-Fi for customers. Ask staff for the password when you order.",
   },
   {
-    icon: Baby,
+    id: "kids",
     question: "Are high chairs available?",
     answer:
-      "Yes, we have high chairs and a kids&apos; menu. The beachside setting is great for families.",
+      "Yes, we have high chairs and a kids' menu. The beachside setting is great for families.",
   },
   {
-    icon: MapPin,
+    id: "outside",
     question: "Can we sit outside?",
     answer:
       "Absolutely. We have deck and outdoor seating with views of the water and the beach.",
@@ -85,7 +85,8 @@ export default function ContactExtended() {
                 <strong className="text-foreground">Phone:</strong> 09 536 5002
               </p>
               <p>
-                <strong className="text-foreground">Email:</strong> hello@maraetaiwharfcafe.co.nz
+                <strong className="text-foreground">Email:</strong>{" "}
+                hello@maraetaiwharfcafe.co.nz
               </p>
               <p>
                 <strong className="text-foreground">Hours:</strong> Mon–Fri
@@ -100,28 +101,15 @@ export default function ContactExtended() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
-          className="mb-10 text-center"
+          className="mb-6 text-center"
         >
-          <h3 className="text-2xl font-bold text-foreground">Common Questions</h3>
+          <h3 className="text-2xl font-bold text-foreground">
+            Common Questions
+          </h3>
         </motion.div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {faqs.map((item, index) => (
-            <motion.div
-              key={item.question}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              className="rounded-xl bg-muted p-6"
-            >
-              <item.icon className="mb-4 h-7 w-7 text-primary" />
-              <h4 className="mb-2 font-semibold text-foreground">
-                {item.question}
-              </h4>
-              <p className="text-sm text-muted-foreground">{item.answer}</p>
-            </motion.div>
-          ))}
+        <div className="mx-auto max-w-3xl">
+          <Accordion items={faqs} />
         </div>
       </div>
     </section>

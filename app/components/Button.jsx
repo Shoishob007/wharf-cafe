@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const variants = {
   primary: {
-    base: "bg-primary text-primary-foreground hover:scale-105",
+    base: "border-2 border-transparent bg-primary text-primary-foreground",
     overlay: "bg-primary-foreground/20",
     textHover: "",
   },
@@ -17,6 +17,11 @@ const variants = {
     base: "border-2 border-white text-white hover:border-white",
     overlay: "bg-white",
     textHover: "group-hover:text-foreground",
+  },
+  whiteOutline: {
+    base: "border-2 border-primary text-white",
+    overlay: "bg-primary",
+    textHover: "group-hover:text-primary-foreground",
   },
 };
 
@@ -38,7 +43,7 @@ export default function Button({
         {children}
       </span>
       <span
-        className={`absolute inset-0 z-0 translate-y-full transition-transform duration-300 ease-out group-hover:translate-y-0 ${v.overlay}`}
+        className={`absolute inset-0 z-0 -translate-x-full transition-transform duration-300 ease-out group-hover:translate-x-0 ${v.overlay}`}
       />
     </>
   );

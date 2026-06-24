@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Phone, Clock, ShoppingBag, MapPin } from "lucide-react";
 import Button from "../components/Button";
+import ShapedImage from "../components/ShapedImage";
 
 export default function Takeaway() {
   return (
@@ -72,18 +73,12 @@ export default function Takeaway() {
             <Button href="/contact/">Contact Us</Button>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="overflow-hidden rounded-2xl"
-          >
-            <div
-              className="aspect-[4/3] w-full bg-cover bg-center"
-              style={{ backgroundImage: "url('/cafe-menu/lunch-04.jpg')" }}
-            />
-          </motion.div>
+          <ShapedImage
+            src="/cafe-menu/lunch-04.jpg"
+            alt="Takeaway at the Wharf"
+            shape="leaf"
+            className="aspect-[4/3] w-full"
+          />
         </div>
       </div>
     </section>

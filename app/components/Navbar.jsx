@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Phone, Mail } from "lucide-react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Menu, X, Phone, Mail, ChevronDown, Anchor } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ThemeToggle from "./ThemeToggle";
 
-const navLinks = [
+const topLevelLinks = [
   { href: "/", label: "Home" },
   { href: "/about/", label: "About" },
   { href: "/menu/", label: "Menu" },
@@ -16,8 +17,38 @@ const navLinks = [
   { href: "/contact/", label: "Contact" },
 ];
 
+const menuDropdown = [
+  { href: "/menu/", label: "Full Menu" },
+  { href: "/menu/?category=breakfast", label: "Breakfast" },
+  { href: "/menu/?category=brunch", label: "Brunch" },
+  { href: "/menu/?category=lunch", label: "Lunch" },
+  { href: "/menu/?category=drinks", label: "Drinks" },
+];
+
+function isActive(pathname, href) {
+  if (href === "/") return pathname === "/";
+  return pathname.startsWith(href);
+}
+
+function navLinkClasses(active, isTop) {
+  if (active) return "text-primary hover:text-primary";
+  return isTop
+    ? "text-white hover:text-white/80"
+    : "text-foreground hover:text-primary";
+}
+
+function underlineClasses(active) {
+  return `absolute -bottom-1 left-0 h-0.5 w-full bg-current transition-transform duration-200 ${
+    active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+  }`;
+}
+
 export default function Navbar() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentCategory = searchParams.get("category");
   const [isOpen, setIsOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -49,7 +80,6 @@ export default function Navbar() {
 
   const isTop = !scrolled;
   const topText = isTop ? "text-white" : "text-foreground";
-  const topHover = isTop ? "hover:text-white/80" : "hover:text-primary";
   const topBg = isTop ? "hover:bg-white/10" : "hover:bg-muted";
   const topPhone = isTop
     ? "text-white/90 hover:text-white"
@@ -71,27 +101,104 @@ export default function Navbar() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className={`text-xl font-bold tracking-tight transition-colors ${topText}`}
+            className={`flex items-center gap-2 text-lg font-bold tracking-tight transition-colors sm:text-xl ${topText}`}
           >
-            Maraetai Wharf Café
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <Anchor className="h-4 w-4" />
+            </span>
+            <span className="font-serif">Maraetai Wharf Café</span>
           </Link>
 
-          <nav className="hidden items-center gap-6 lg:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-sm font-medium transition-colors ${topText} ${topHover}`}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <nav className="hidden items-center gap-6 xl:flex">
+            {topLevelLinks.map((link) =>
+              link.href === "/menu/" ? (
+                <div
+                  key="menu"
+                  className="relative"
+                  onMouseEnter={() => setMenuOpen(true)}
+                  onMouseLeave={() => setMenuOpen(false)}
+                >
+                  <Link
+                    href="/menu/"
+                    className={`group relative flex items-center gap-1 text-sm font-medium transition-colors ${navLinkClasses(
+                      isActive(pathname, "/menu/"),
+                      isTop,
+                    )}`}
+                  >
+                    Menu
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${
+                        menuOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                    <span
+                      className={underlineClasses(isActive(pathname, "/menu/"))}
+                    />
+                  </Link>
+                  <AnimatePresence>
+                    {menuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute top-full left-0 mt-2 min-w-[180px] overflow-hidden rounded-xl border border-border bg-card/95 backdrop-blur-md shadow-lg"
+                      >
+                        {menuDropdown.map((item) => {
+                          const isFullMenu = item.href === "/menu/";
+                          const itemCategory = isFullMenu
+                            ? null
+                            : new URL(
+                                item.href,
+                                "http://localhost",
+                              ).searchParams.get("category");
+                          const active = isFullMenu
+                            ? pathname === "/menu/" && !currentCategory
+                            : itemCategory === currentCategory;
+                          return (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              className={`block px-4 py-2.5 text-sm transition-colors hover:bg-primary hover:text-primary-foreground ${
+                                active
+                                  ? "bg-primary/10 text-primary font-medium"
+                                  : "text-card-foreground"
+                              }`}
+                            >
+                              {item.label}
+                            </Link>
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`group relative inline-block text-sm font-medium transition-colors ${navLinkClasses(
+                    isActive(pathname, link.href),
+                    isTop,
+                  )}`}
+                >
+                  {link.label}
+                  <span
+                    className={underlineClasses(isActive(pathname, link.href))}
+                  />
+                </Link>
+              ),
+            )}
           </nav>
 
-          <div className="hidden items-center gap-3 lg:flex">
+          <div className="hidden items-center gap-3 xl:flex">
             <a
               href="tel:+64095365002"
-              className={`flex items-center gap-1.5 text-sm font-medium ${topPhone}`}
+              className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+                isTop
+                  ? "border-white/30 text-white hover:bg-white/10"
+                  : "border-border text-foreground hover:bg-muted"
+              }`}
             >
               <Phone className="h-4 w-4" />
               <span>09 536 5002</span>
@@ -99,7 +206,7 @@ export default function Navbar() {
             <ThemeToggle className={topIcon} />
           </div>
 
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="flex items-center gap-2 xl:hidden">
             <ThemeToggle className={topIcon} />
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -124,19 +231,35 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 bg-background pt-20 lg:hidden"
+            className="fixed inset-0 z-40 bg-background pt-20 xl:hidden"
           >
             <nav className="flex flex-col items-center gap-6 p-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={handleLinkClick}
-                  className="text-lg font-medium text-foreground hover:text-primary"
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {[
+                { href: "/", label: "Home" },
+                { href: "/about/", label: "About" },
+                { href: "/menu/", label: "Menu" },
+                { href: "/takeaway/", label: "Takeaway" },
+                { href: "/reservation/", label: "Reservation" },
+                { href: "/gallery/", label: "Gallery" },
+                { href: "/contact/", label: "Contact" },
+              ].map((link) => {
+                const active = isActive(pathname, link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={handleLinkClick}
+                    className={`group relative inline-block text-lg font-medium transition-colors ${
+                      active
+                        ? "text-primary"
+                        : "text-foreground hover:text-primary"
+                    }`}
+                  >
+                    {link.label}
+                    <span className={underlineClasses(active)} />
+                  </Link>
+                );
+              })}
               <div className="mt-4 flex flex-col items-center gap-3 text-sm text-muted-foreground">
                 <a href="tel:+64095365002" className="flex items-center gap-2">
                   <Phone className="h-4 w-4" />

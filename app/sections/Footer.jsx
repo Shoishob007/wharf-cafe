@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Phone, Mail, MapPin } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, Instagram } from "lucide-react";
 
 const footerLinks = [
   { href: "/", label: "Home" },
@@ -80,11 +80,45 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-border pt-6 text-center text-sm text-muted-foreground">
-          <p>
+        <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
+          <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} Maraetai Wharf Café. All rights
             reserved.
           </p>
+          <div className="flex items-center gap-3">
+            <a
+              href="https://facebook.com/maraetaiwharfcafe"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+              className="rounded-full bg-muted p-2 text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+            >
+              <Facebook className="h-5 w-5" />
+            </a>
+            <a
+              href="https://instagram.com/maraetaiwharfcafe"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              className="rounded-full bg-muted p-2 text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+            >
+              <Instagram className="h-5 w-5" />
+            </a>
+            <a
+              href="mailto:hello@maraetaiwharfcafe.co.nz"
+              aria-label="Email"
+              className="rounded-full bg-muted p-2 text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+            >
+              <Mail className="h-5 w-5" />
+            </a>
+            <a
+              href="tel:+64095365002"
+              aria-label="Phone"
+              className="rounded-full bg-muted p-2 text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+            >
+              <Phone className="h-5 w-5" />
+            </a>
+          </div>
         </div>
       </div>
     </footer>
