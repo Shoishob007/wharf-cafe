@@ -2,7 +2,8 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, ChevronDown, Expand } from "lucide-react";
 
 const categories = [
   {
@@ -117,11 +118,33 @@ const categories = [
       "/cafe-menu/drinks-03.jpg",
     ],
     items: [
-      { name: "Flat White", price: "$5.50", note: "Allpress espresso" },
-      { name: "Iced Long Black", price: "$6", note: "Served over ice" },
+      {
+        name: "Flat White",
+        note: "Allpress espresso",
+        sizes: [
+          { label: "Small", price: "$5.00" },
+          { label: "Regular", price: "$5.50" },
+          { label: "Large", price: "$6.00" },
+        ],
+      },
+      {
+        name: "Iced Long Black",
+        note: "Served over ice",
+        sizes: [
+          { label: "Regular", price: "$6.00" },
+          { label: "Large", price: "$6.50" },
+        ],
+      },
       { name: "Berry Smoothie", price: "$8.50", note: "Banana & coconut milk" },
       { name: "Green Detox Juice", price: "$8", note: "Kale, apple & ginger" },
-      { name: "Hot Chocolate", price: "$6", note: "Marshmallows on request" },
+      {
+        name: "Hot Chocolate",
+        note: "Marshmallows on request",
+        sizes: [
+          { label: "Regular", price: "$6.00" },
+          { label: "Large", price: "$6.80" },
+        ],
+      },
       { name: "Craft Beer", price: "$10", note: "Local selection" },
       { name: "Sparkling Water", price: "$4.50", note: "Chilled" },
     ],
@@ -133,10 +156,108 @@ const tabs = [
   ...categories.map((c) => ({ id: c.id, label: c.title })),
 ];
 
+function SizeAccordion({ item }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border-b border-border pb-4 pt-3 sm:pb-5 sm:pt-4">
+      <button
+        onClick={() => setOpen((p) => !p)}
+        className="flex w-full items-start justify-between text-left"
+      >
+        <div>
+          <p className="font-medium text-foreground">{item.name}</p>
+          <p className="text-xs text-muted-foreground">{item.note}</p>
+        </div>
+        <span className="ml-2 flex items-center gap-1 text-sm font-medium text-primary">
+          Sizes
+          <ChevronDown
+            className={`h-4 w-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          />
+        </span>
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-2 space-y-1 pl-1">
+              {item.sizes.map((s) => (
+                <div key={s.label} className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">{s.label}</span>
+                  <span className="font-semibold text-primary">{s.price}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function MenuItem({ item }) {
+  if (item.sizes) return <SizeAccordion item={item} />;
+  return (
+    <div className="flex items-start justify-between border-b border-border pb-4 pt-3 sm:pb-5 sm:pt-4">
+      <div>
+        <p className="font-medium text-foreground">{item.name}</p>
+        <p className="text-xs text-muted-foreground">{item.note}</p>
+      </div>
+      <span className="font-bold text-primary">{item.price}</span>
+    </div>
+  );
+}
+
+function ImageLightbox({ src, alt, onClose }) {
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+        onClick={onClose}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Close preview"
+          className="absolute right-4 top-4 rounded-full bg-primary p-2 text-primary-foreground"
+        >
+          <X className="h-5 w-5" />
+        </button>
+        <motion.img
+          key={src}
+          src={src}
+          alt={alt}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.2 }}
+          className="max-h-[88vh] max-w-[92vw] rounded-2xl object-contain"
+          onClick={(e) => e.stopPropagation()}
+        />
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
 function MenuInner() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") || "all";
   const [active, setActive] = useState(initialCategory);
+  const [lightbox, setLightbox] = useState(null);
 
   useEffect(() => {
     const category = searchParams.get("category");
@@ -204,19 +325,36 @@ function MenuInner() {
 
               <div className="mb-8 grid grid-cols-3 gap-3 sm:gap-4">
                 {category.images.map((src, i) => (
-                  <motion.div
+                  <motion.button
                     key={src}
                     initial={{ opacity: 0, scale: 0.95 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: i * 0.1 }}
-                    className="aspect-[4/3] overflow-hidden rounded-2xl bg-cover bg-center"
-                    style={{ backgroundImage: `url('${src}')` }}
-                  />
+                    onClick={() =>
+                      setLightbox({
+                        src,
+                        alt: `${category.title} photo ${i + 1}`,
+                      })
+                    }
+                    className="group relative aspect-[4/3] overflow-hidden rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary"
+                    aria-label={`Preview ${category.title} photo ${i + 1}`}
+                  >
+                    <div
+                      className="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+                      style={{ backgroundImage: `url('${src}')` }}
+                    />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/45 group-hover:opacity-100">
+                      <Expand className="h-5 w-5 text-white drop-shadow sm:h-6 sm:w-6" />
+                      <span className="text-[11px] font-medium tracking-wide text-white drop-shadow sm:text-xs">
+                        Click to expand
+                      </span>
+                    </div>
+                  </motion.button>
                 ))}
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-8">
                 {category.items.map((item, i) => (
                   <motion.div
                     key={item.name}
@@ -224,15 +362,8 @@ function MenuInner() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.3, delay: i * 0.05 }}
-                    className="flex items-start justify-between border-b border-border pb-3 pt-2"
                   >
-                    <div>
-                      <p className="font-medium text-foreground">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {item.note}
-                      </p>
-                    </div>
-                    <span className="font-bold text-primary">{item.price}</span>
+                    <MenuItem item={item} />
                   </motion.div>
                 ))}
               </div>
@@ -240,6 +371,14 @@ function MenuInner() {
           ))}
         </div>
       </div>
+
+      {lightbox && (
+        <ImageLightbox
+          src={lightbox.src}
+          alt={lightbox.alt}
+          onClose={() => setLightbox(null)}
+        />
+      )}
     </section>
   );
 }

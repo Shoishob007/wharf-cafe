@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Expand } from "lucide-react";
 
 const images = Array.from({ length: 19 }, (_, i) => ({
   src: `/cafe-menu/gallery-${String(i + 1).padStart(2, "0")}.jpg`,
   alt: `Cafe photo ${i + 1}`,
 }));
 
+// Desktop 4-col bento
 const bentoLayout = [
   "col-span-2 row-span-2",
   "col-span-1 row-span-1",
@@ -30,6 +31,54 @@ const bentoLayout = [
   "col-span-1 row-span-1",
   "col-span-1 row-span-1",
 ];
+
+// Mobile 2-col bento — alternating featured + small tiles
+const mobileBento = [
+  "col-span-2 row-span-2", // wide feature
+  "col-span-1 row-span-1",
+  "col-span-1 row-span-1",
+  "col-span-1 row-span-2", // tall
+  "col-span-1 row-span-1",
+  "col-span-1 row-span-1",
+  "col-span-2 row-span-1", // wide
+  "col-span-1 row-span-1",
+  "col-span-1 row-span-1",
+  "col-span-1 row-span-2", // tall
+  "col-span-1 row-span-1",
+  "col-span-1 row-span-1",
+  "col-span-2 row-span-2", // wide feature
+  "col-span-1 row-span-1",
+  "col-span-1 row-span-1",
+  "col-span-2 row-span-1", // wide
+  "col-span-1 row-span-1",
+  "col-span-1 row-span-1",
+  "col-span-2 row-span-1", // wide
+];
+
+function GalleryButton({ image, index, onClick, layoutClass }) {
+  return (
+    <motion.button
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.4, delay: index * 0.03 }}
+      onClick={() => onClick(index)}
+      className={`group relative overflow-hidden rounded-xl focus:outline-none focus:ring-2 focus:ring-primary ${layoutClass}`}
+      aria-label={`Open image ${index + 1}`}
+    >
+      <div
+        className="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+        style={{ backgroundImage: `url('${image.src}')` }}
+      />
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/45 group-hover:opacity-100">
+        <Expand className="h-5 w-5 text-white drop-shadow" />
+        <span className="text-[11px] font-medium tracking-wide text-white drop-shadow sm:text-xs">
+          Click to expand
+        </span>
+      </div>
+    </motion.button>
+  );
+}
 
 export default function BentoGallery() {
   const [lightbox, setLightbox] = useState(null);
@@ -59,24 +108,29 @@ export default function BentoGallery() {
           </p>
         </motion.div>
 
-        <div className="grid auto-rows-[180px] grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+        {/* Mobile: mini-bento 2-col layout */}
+        <div className="grid auto-rows-[120px] grid-cols-2 gap-3 md:hidden">
           {images.map((image, index) => (
-            <motion.button
+            <GalleryButton
               key={image.src}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.4, delay: index * 0.03 }}
-              onClick={() => open(index)}
-              className={`group relative overflow-hidden rounded-xl focus:outline-none focus:ring-2 focus:ring-primary ${bentoLayout[index]}`}
-              aria-label={`Open image ${index + 1}`}
-            >
-              <div
-                className="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-                style={{ backgroundImage: `url('${image.src}')` }}
-              />
-              <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/20" />
-            </motion.button>
+              image={image}
+              index={index}
+              onClick={open}
+              layoutClass={mobileBento[index] ?? "col-span-1 row-span-1"}
+            />
+          ))}
+        </div>
+
+        {/* Desktop: bento layout */}
+        <div className="hidden auto-rows-[180px] grid-cols-4 gap-4 md:grid">
+          {images.map((image, index) => (
+            <GalleryButton
+              key={image.src}
+              image={image}
+              index={index}
+              onClick={open}
+              layoutClass={bentoLayout[index]}
+            />
           ))}
         </div>
       </div>
@@ -92,10 +146,10 @@ export default function BentoGallery() {
           >
             <button
               onClick={close}
-              className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+              className="absolute right-4 top-4 rounded-full bg-primary p-2 text-primary-foreground"
               aria-label="Close lightbox"
             >
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5" />
             </button>
 
             <button
@@ -115,13 +169,13 @@ export default function BentoGallery() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="max-h-[85vh] max-w-[90vw] overflow-hidden rounded-lg"
+              className="max-h-[88vh] max-w-[92vw] overflow-hidden rounded-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <img
                 src={images[lightbox].src}
                 alt={images[lightbox].alt}
-                className="max-h-[85vh] max-w-[90vw] object-contain"
+                className="max-h-[88vh] max-w-[92vw] object-contain"
               />
             </motion.div>
 

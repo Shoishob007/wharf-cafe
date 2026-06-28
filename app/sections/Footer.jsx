@@ -4,13 +4,11 @@ import Link from "next/link";
 import { Phone, Mail, MapPin, Facebook, Instagram } from "lucide-react";
 
 const footerLinks = [
-  { href: "/", label: "Home" },
-  { href: "/about/", label: "About" },
-  { href: "/menu/", label: "Menu" },
+  { href: "/menu/", label: "Our Menu" },
+  { href: "/reservation/", label: "Book a Table" },
   { href: "/takeaway/", label: "Takeaway" },
-  { href: "/reservation/", label: "Reservation" },
   { href: "/gallery/", label: "Gallery" },
-  { href: "/contact/", label: "Contact" },
+  { href: "/contact/", label: "Contact Us" },
 ];
 
 export default function Footer() {
@@ -29,7 +27,14 @@ export default function Footer() {
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary" />
-                <span>231 Maraetai Drive, Maraetai, Auckland 2018</span>
+                <a
+                  href="https://maps.google.com/?q=231+Maraetai+Drive,+Maraetai,+Auckland+2018"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary"
+                >
+                  231 Maraetai Drive, Maraetai, Auckland 2018
+                </a>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-primary" />

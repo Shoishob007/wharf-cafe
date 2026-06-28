@@ -1,8 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Leaf, WheatOff, Flame, Clock } from "lucide-react";
-import ShapedImage from "../components/ShapedImage";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Leaf, WheatOff, Flame, Clock, Expand, X } from "lucide-react";
 
 const specials = [
   {
@@ -37,7 +37,50 @@ const dietary = [
   { icon: Clock, label: "Cabinet food all day" },
 ];
 
+function ImageLightbox({ src, alt, onClose }) {
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+        onClick={onClose}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Close preview"
+          className="absolute right-4 top-4 rounded-full bg-primary p-2 text-primary-foreground"
+        >
+          <X className="h-5 w-5" />
+        </button>
+        <motion.img
+          key={src}
+          src={src}
+          alt={alt}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.2 }}
+          className="max-h-[88vh] max-w-[92vw] rounded-2xl object-contain"
+          onClick={(e) => e.stopPropagation()}
+        />
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
 export default function MenuHighlights() {
+  const [lightbox, setLightbox] = useState(null);
+
   return (
     <section className="bg-background py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -66,12 +109,21 @@ export default function MenuHighlights() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
             >
-              <ShapedImage
-                src={item.image}
-                alt={item.name}
-                shape="rounded-2xl"
-                className="mb-4 aspect-[4/3] w-full"
-              />
+              <button
+                onClick={() => setLightbox({ src: item.image, alt: item.name })}
+                className="group relative mb-4 aspect-[4/3] w-full overflow-hidden rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <div
+                  className="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+                  style={{ backgroundImage: `url('${item.image}')` }}
+                />
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/45 group-hover:opacity-100">
+                  <Expand className="h-5 w-5 text-white drop-shadow sm:h-6 sm:w-6" />
+                  <span className="text-[11px] font-medium tracking-wide text-white drop-shadow sm:text-xs">
+                    Click to expand
+                  </span>
+                </div>
+              </button>
               <div className="mb-2 flex items-center justify-between">
                 <h3 className="font-semibold text-foreground">{item.name}</h3>
                 <span className="font-bold text-primary">{item.price}</span>
@@ -84,7 +136,15 @@ export default function MenuHighlights() {
           ))}
         </div>
 
-        <div className="grid gap-4 border-t border-border pt-8 sm:grid-cols-2 lg:grid-cols-4">
+        {lightbox && (
+          <ImageLightbox
+            src={lightbox.src}
+            alt={lightbox.alt}
+            onClose={() => setLightbox(null)}
+          />
+        )}
+
+        <div className="grid grid-cols-2 gap-4 border-t border-border pt-8 lg:grid-cols-4">
           {dietary.map((item, index) => (
             <motion.div
               key={item.label}

@@ -16,6 +16,7 @@
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   --background: #1a1a1a;
   --foreground: #f3f3f3;
   --primary: #ff7a59;

@@ -4,7 +4,18 @@ import { Sun, Moon } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 
 export default function ThemeToggle({ className = "" }) {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, mounted } = useTheme();
+
+  if (!mounted) {
+    return (
+      <button
+        aria-label="Toggle theme"
+        className={`rounded-full p-2 transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary ${className}`}
+      >
+        <Moon className="h-5 w-5 opacity-0" />
+      </button>
+    );
+  }
 
   return (
     <button

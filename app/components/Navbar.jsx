@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Menu, X, Phone, Mail, ChevronDown, Anchor } from "lucide-react";
+import { Menu, X, Phone, Mail, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ThemeToggle from "./ThemeToggle";
+import { useTheme } from "./ThemeProvider";
 
 const topLevelLinks = [
   { href: "/", label: "Home" },
@@ -47,8 +49,10 @@ export default function Navbar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentCategory = searchParams.get("category");
+  const { theme, mounted: themeMounted } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -76,9 +80,16 @@ export default function Navbar() {
     };
   }, [isOpen]);
 
-  const handleLinkClick = () => setIsOpen(false);
+  const handleLinkClick = () => {
+    setIsOpen(false);
+    setMobileMenuOpen(false);
+  };
 
   const isTop = !scrolled;
+  // Before theme is known on client, always use white logo (matches SSR default)
+  const isDark = themeMounted && theme === "dark";
+  const logoSrc = isDark || isTop ? "/white-logo.webp" : "/black-logo.webp";
+
   const topText = isTop ? "text-white" : "text-foreground";
   const topBg = isTop ? "hover:bg-white/10" : "hover:bg-muted";
   const topPhone = isTop
@@ -98,15 +109,16 @@ export default function Navbar() {
             : "bg-transparent"
         }`}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <Link
-            href="/"
-            className={`flex items-center gap-2 text-lg font-bold tracking-tight transition-colors sm:text-xl ${topText}`}
-          >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <Anchor className="h-4 w-4" />
-            </span>
-            <span className="font-serif">Maraetai Wharf Café</span>
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:py-4 sm:px-6 lg:px-8">
+          <Link href="/" className="flex items-center">
+            <Image
+              src={logoSrc}
+              alt="Maraetai Wharf Café"
+              width={200}
+              height={70}
+              className="h-12 w-auto object-contain transition-all duration-300 sm:h-16"
+              priority
+            />
           </Link>
 
           <nav className="hidden items-center gap-6 xl:flex">
@@ -212,7 +224,11 @@ export default function Navbar() {
               onClick={() => setIsOpen(!isOpen)}
               aria-label={isOpen ? "Close menu" : "Open menu"}
               aria-expanded={isOpen}
-              className={`rounded-md p-2 transition-colors ${topText} ${topBg}`}
+              className={`rounded-md p-2 transition-colors ${
+                isOpen
+                  ? "text-foreground hover:bg-muted"
+                  : `${topText} ${topBg}`
+              }`}
             >
               {isOpen ? (
                 <X className="h-6 w-6" />
@@ -234,10 +250,74 @@ export default function Navbar() {
             className="fixed inset-0 z-40 bg-background pt-20 xl:hidden"
           >
             <nav className="flex flex-col items-center gap-6 p-6">
+              {/* Home */}
               {[
                 { href: "/", label: "Home" },
                 { href: "/about/", label: "About" },
-                { href: "/menu/", label: "Menu" },
+              ].map((link) => {
+                const active = isActive(pathname, link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={handleLinkClick}
+                    className={`group relative inline-block text-lg font-medium transition-colors ${
+                      active
+                        ? "text-primary"
+                        : "text-foreground hover:text-primary"
+                    }`}
+                  >
+                    {link.label}
+                    <span className={underlineClasses(active)} />
+                  </Link>
+                );
+              })}
+
+              {/* Menu accordion — correct position in sequence */}
+              <div className="w-full text-center">
+                <button
+                  onClick={() => setMobileMenuOpen((p) => !p)}
+                  className={`group relative inline-flex items-center gap-1 text-lg font-medium transition-colors ${
+                    isActive(pathname, "/menu/")
+                      ? "text-primary"
+                      : "text-foreground hover:text-primary"
+                  }`}
+                >
+                  Menu
+                  <ChevronDown
+                    className={`h-5 w-5 transition-transform ${
+                      mobileMenuOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                <AnimatePresence>
+                  {mobileMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="mt-2 overflow-hidden"
+                    >
+                      <div className="flex flex-col gap-2 rounded-xl bg-muted px-4 py-3">
+                        {menuDropdown.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={handleLinkClick}
+                            className="text-base text-muted-foreground hover:text-primary"
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Remaining links */}
+              {[
                 { href: "/takeaway/", label: "Takeaway" },
                 { href: "/reservation/", label: "Reservation" },
                 { href: "/gallery/", label: "Gallery" },

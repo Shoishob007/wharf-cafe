@@ -242,7 +242,9 @@ export default function Reservation() {
                       setTime(e.target.value);
                       if (errors.time) setErrors((p) => ({ ...p, time: "" }));
                     }}
+                    size={1}
                     className="w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
+                    style={{ maxHeight: "40vh" }}
                   >
                     <option value="">
                       {date ? "Select time" : "Select a date first"}
